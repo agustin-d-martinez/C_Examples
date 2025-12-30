@@ -6,7 +6,7 @@ Forma parte del repositorio **C_Examples**.
 Posee las siguientes características:
 - Creación de un socket de servidor con puerto definido y comunicación TCP.
 - Comunicación con una página web vía HTML.
-- Lectura y escritura de claves a través de un driver personalizado (ver: xxxx).
+- Lectura y escritura de claves a través de un driver personalizado (ver: [Link del Driver](https://github.com/agustin-d-martinez/Linux_Drivers.git)).
 - Utilización de procesos, memoria compartida, semáforos y señales.
 
 ---
