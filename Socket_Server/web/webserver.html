@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Configuración del control de accesos</title>
+  <link rel="icon" href="data:,">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; margin-bottom: 20px; width: 50%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    button { padding: 6px 12px; margin: 5px; border: none; cursor: pointer; }
+    .verde { background-color: #4CAF50; color: white; }
+    .rojo { background-color: #F44336; color: white; }
+  </style>
+</head>
+<body>
+  <!-- TAbla de código -->
+  <h2>Códigos</h2>
+  <table id="keyTable">
+    <thead>
+      <tr><th>Válidos</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Botón de agregar --> 
+  <div style="display: flex; gap: 10px; align-items: center;">
+
+    <form id="formClave" onsubmit="agregarClave(); return false;" style="display: flex; gap: 10px;">
+      <input type="text" id="inputClave" placeholder="Ingrese clave de 4 dígitos"
+            pattern="\d{4}" required>
+      <button type="submit" class="verde">Agregar</button>
+    </form>
+
+    <!-- Botón de eliminar -->
+    <button type="button" class="rojo" onclick="eliminarClave()">Eliminar</button>
+
+  </div>
+
+  <!-- Tabla de LOG -->
+  <h2>Log</h2>
+  <table id="logTable">
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Codigo</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    // Validación de data
+    function validarClaves(data) {
+      if (!Array.isArray(data)) return false;
+      return data.every(c => typeof c === "string" && /^\d{4}$/.test(c));
+    }
+
+    function validarLog(data) {
+      if (!Array.isArray(data)) return false;
+      return data.every(l =>
+        typeof l === "object" &&
+        typeof l.fecha === "string" &&
+        typeof l.hora === "string" &&
+        typeof l.clave === "string" && /^\d{4}$/.test(l.clave) &&
+        (l.estado === "0" || l.estado === "1")
+      );
+    }
+
+    // Carga de valores
+    async function cargarClaves() {
+      const res = await fetch("/claves");
+      const claves = await res.json();
+
+      if (!validarClaves(claves)) {
+        console.error("Datos inválidos recibidos en /claves", claves);
+        return;
+      }
+
+      const tbody = document.querySelector("#keyTable tbody");
+      tbody.innerHTML = "";
+
+      claves.forEach(c => {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.textContent = c;
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function cargarLog() {
+      const res = await fetch("/log");
+      const logs = await res.json();
+
+      if (!validarLog(logs)) {
+        console.error("Datos inválidos recibidos en /log", logs);
+        return;
+      }
+
+      const tbody = document.querySelector("#logTable tbody");
+      tbody.innerHTML = "";
+
+      logs.forEach(l => {
+        const tr = document.createElement("tr");
+        ["fecha", "hora", "clave", "estado"].forEach(campo => {
+          const td = document.createElement("td");
+          td.textContent = l[campo];
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Pedidos
+    async function agregarClave() {
+      const input = document.getElementById("inputClave");
+      const clave = input.value;
+
+      if (!/^\d{4}$/.test(clave)) {
+        alert("La clave debe ser de 4 dígitos numéricos.");
+        return;
+      }
+
+      await fetch("/agregar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clave })
+      });
+
+      input.value = "";
+      await cargarClaves();
+      await cargarLog();
+    }
+
+    async function eliminarClave() {
+      const clave = document.getElementById("inputClave").value;
+
+      if (!/^\d{4}$/.test(clave)) {
+        alert("La clave debe ser de 4 dígitos numéricos.");
+        return;
+      }
+
+      await fetch("/eliminar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clave })
+      });
+
+      document.getElementById("inputClave").value = "";
+      await cargarClaves();
+      await cargarLog();
+    }
+
+    // Refresco de valores
+    setInterval(async () => {
+      await cargarClaves();
+      await cargarLog();
+    }, 10000);
+
+    // Carga inicial
+    (async () => {
+      await cargarClaves();
+      await cargarLog();
+    })();
+
+  </script>
+</body>
+</html>

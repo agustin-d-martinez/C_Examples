@@ -1,0 +1,35 @@
+*Tomar el veamos.c y reescribirlo para que reciba el nombre del archivo (o los nombres de los archivos) por linea de comando.
+
+----Nombre del archivo-------------------------------
+...
+...
+...
+...
+
+----Nombre del archivo-------------------------------
+...
+...
+...
+...
+
+
+*Tomar el borges.c y reciba por línea de comando un nombre de archivo y una frase. Debe escribir el archivo con dicha frase. Si el archivo existe lo debe agregar al final. Permisos de RW para el OWNER y el GRUPO y solo lectura para el resto.
+
+./borges miarch.txt "Estoy probando este maravillos programa."
+
+Miro el archivo y veo:
+
+Estoy probando este maravillos programa.
+-----------------------------------------
+
+
+./borges miarch.txt "Humillo a los de sistemas."
+
+Miro el archivo y veo:
+
+Estoy probando este maravillos programa.
+-----------------------------------------
+Humillo a los de sistemas.
+-----------------------------------------
+
+
